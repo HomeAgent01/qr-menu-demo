@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Menu Pro - Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #c9a227;
+            --primary-dark: #a88420;
+            --secondary: #1a1a1a;
+            --surface: #242424;
+            --surface-light: #2d2d2d;
+            --text: #f5f5f5;
+            --text-muted: #888;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f0f0f;
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(201, 162, 39, 0); } 100% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        .hidden { display: none !important; }
+
+        .main-header {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            padding: 1.2rem 2rem;
+            border-bottom: 1px solid rgba(201, 162, 39, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .brand { display: flex; align-items: center; gap: 1rem; }
+        .brand-icon {
+            width: 45px; height: 45px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 20px rgba(201, 162, 39, 0.3);
+        }
+        .brand-text h1 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--primary); letter-spacing: 1px; }
+        .brand-text span { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
+
+        .nav-tabs {
+            display: flex;
+            background: var(--surface);
+            padding: 0.5rem;
+            gap: 0.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .nav-tab:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+        .nav-tab.active { color: var(--primary); background: rgba(201, 162, 39, 0.1); }
+
+        .tab-badge {
+            background: var(--danger);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: none;
+        }
+        .tab-badge.show { display: block; animation: pulse-ring 2s infinite; }
+
+        .content-section { display: none; animation: fadeIn 0.5s ease; }
+        .content-section.active { display: block; }
+
+        /* CLIENTE */
+        .cliente-view { max-width: 480px; margin: 0 auto; padding: 1.5rem; padding-bottom: 100px; }
+
+        .hero-section { text-align: center; padding: 2rem 0; margin-bottom: 1rem; }
+        .hero-icon { font-size: 3rem; margin-bottom: 1rem; animation: float 3s ease infinite; }
+        .hero-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--primary); margin-bottom: 0.5rem; }
+        .hero-subtitle { color: var(--text-muted); font-size: 0.95rem; }
+
+        .mesa-section { background: var(--surface); border-radius: 24px; padding: 2rem; border: 1px solid rgba(255,255,255,0.05); }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 1.5rem; text-align: center; }
+
+        .mesa-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .mesa-btn {
+            aspect-ratio: 1;
+            background: var(--surface-light);
+            border: 2px solid transparent;
+            color: var(--text);
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .mesa-btn:hover { transform: translateY(-3px); border-color: rgba(201, 162, 39, 0.3); }
+        .mesa-btn.selected { background: var(--primary); color: var(--secondary); transform: scale(1.05); box-shadow: 0 0 30px rgba(201, 162, 39, 0.4); }
+
+        .btn-primary {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--secondary);
+            border: none;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(201, 162, 39, 0.3); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--surface);
+            border-radius: 16px;
+        }
+        .mesa-indicator { display: flex; align-items: center; gap: 0.5rem; color: var(--primary); font-weight: 600; }
+        .change-mesa { font-size: 0.8rem; color: var(--text-muted); cursor: pointer; text-decoration: underline; }
+
+        .categories { display: flex; gap: 0.8rem; overflow-x: auto; padding-bottom: 1rem; margin-bottom: 1.5rem; scrollbar-width: none; }
+        .categories::-webkit-scrollbar { display: none; }
+
+        .cat-pill {
+            padding: 0.9rem 1.5rem;
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted);
+            border-radius: 50px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .cat-pill:hover { border-color: rgba(201, 162, 39, 0.3); color: var(--text); }
+        .cat-pill.active { background: var(--primary); color: var(--secondary); border-color: var(--primary); box-shadow: 0 4px 20px rgba(201, 162, 39, 0.3); }
+
+        .products-grid { display: flex; flex-direction: column; gap: 1rem; }
+
+        .product-card {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .product-card:hover { transform: translateX(5px); border-color: rgba(201, 162, 39, 0.2); }
+
+        .product-info h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.3rem; }
+        .product-info p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
+        .product-price { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--surface-light);
+            padding: 0.5rem;
+            border-radius: 12px;
+        }
+        .qty-btn {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: var(--surface);
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .qty-btn:hover { background: var(--primary); color: var(--secondary); }
+        .qty-value { font-size: 1.1rem; font-weight: 600; min-width: 30px; text-align: center; }
+
+        .floating-cart {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(15,15,15,0.98), transparent);
+            padding: 1.5rem;
+            z-index: 100;
+        }
+        .cart-button {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 1.2rem 1.5rem;
+            background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 40px rgba(34, 197, 94, 0.3);
+        }
+        .cart-info { display: flex; align-items: center; gap: 0.8rem; }
+        .cart-count { background: rgba(255,255,255,0.2); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.9rem; }
+
+        .cart-view {
+            background: var(--surface);
+            border-radius: 24px 24px 0 0;
+            min-height: 100vh;
+            padding: 1.5rem;
+            animation: slideInRight 0.4s ease;
+        }
+        .cart-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+        .back-btn {
+            width: 45px; height: 45px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: var(--surface-light);
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cart-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; }
+
+        .cart-items { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+        .cart-item {
+            background: var(--surface-light);
+            border-radius: 16px;
+            padding: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cart-item-info h4 { font-size: 1.1rem; margin-bottom: 0.3rem; }
+        .cart-item-info span { color: var(--text-muted); font-size: 0.9rem; }
+        .cart-item-price { font-size: 1.2rem; font-weight: 600; color: var(--primary); }
+
+        .cart-summary {
+            background: var(--surface-light);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(201, 162, 39, 0.2);
+        }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.8rem; color: var(--text-muted); }
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .notes-input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--surface-light);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: inherit;
+            margin-bottom: 1.5rem;
+            resize: none;
+        }
+        .notes-input:focus { outline: none; border-color: var(--primary); }
+
+        .payment-options { display: grid; gap: 1rem; margin: 2rem 0; }
+        .payment-card {
+            background: var(--surface-light);
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+        .payment-card:hover { border-color: rgba(201, 162, 39, 0.3); transform: translateX(5px); }
+        .payment-card.selected { border-color: var(--primary); background: rgba(201, 162, 39, 0.1); }
+        .payment-icon {
+            width: 50px; height: 50px;
+            background: var(--surface);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .payment-info h4 { margin-bottom: 0.2rem; }
+        .payment-info p { color: var(--text-muted); font-size: 0.85rem; }
+
+        .success-view { text-align: center; padding: 3rem 1.5rem; }
+        .success-circle {
+            width: 100px; height: 100px;
+            background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 3rem;
+            box-shadow: 0 10px 40px rgba(34, 197, 94, 0.4);
+            animation: pulse-ring 2s infinite;
+        }
+        .order-number {
+            display: inline-block;
+            background: var(--surface);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            margin: 1.5rem 0;
+            border: 2px solid var(--primary);
+        }
+        .order-number span { display: block; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.3rem; }
+        .order-number strong { font-size: 2rem; color: var(--primary); }
+
+        /* COCINA */
+        .cocina-view { padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
+
+        .cocina-header {
+            background: linear-gradient(135deg, var(--surface) 0%, var(--surface-light) 100%);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(201, 162, 39, 0.2);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 2rem;
+            align-items: center;
+        }
+        .cocina-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--primary); margin-bottom: 0.5rem; }
+        .cocina-subtitle { color: var(--text-muted); }
+
+        .cocina-stats { display: flex; gap: 2rem; }
+        .stat-box { text-align: center; padding: 1rem 1.5rem; background: rgba(0,0,0,0.2); border-radius: 16px; min-width: 100px; }
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--primary); display: block; }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+
+        .order-card {
+            background: var(--surface);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+            animation: slideInRight 0.5s ease;
+            position: relative;
+        }
+        .order-card.new {
+            border-color: var(--success);
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.2);
+        }
+        .order-card.new::before {
+            content: 'NUEVO';
+            position: absolute;
+            top: 15px;
+            right: -35px;
+            background: var(--success);
+            color: white;
+            padding: 0.4rem 3rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transform: rotate(45deg);
+            z-index: 10;
+        }
+
+        .order-header {
+            background: linear-gradient(135deg, rgba(201, 162, 39, 0.1) 0%, transparent 100%);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .table-number { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--primary); }
+        .table-number span { display: block; font-size: 0.75rem; color: var(--text-muted); font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
+        .order-time { text-align: right; }
+        .time-display { font-size: 1.3rem; font-weight: 600; }
+        .time-ago { color: var(--text-muted); font-size: 0.85rem; }
+
+        .order-body { padding: 1.5rem; }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .item-name { display: flex; align-items: center; gap: 0.8rem; }
+        .item-qty {
+            background: var(--primary);
+            color: var(--secondary);
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .order-notes {
+            background: rgba(201, 162, 39, 0.1);
+            border-left: 3px solid var(--primary);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 12px 12px 0;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .order-footer {
+            background: var(--surface-light);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .total-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+        .total-amount { font-size: 1.8rem; font-weight: 700; color: var(--success); }
+        .payment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .order-actions {
+            padding: 1rem 1.5rem 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .btn-action {
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        .btn-cooking { background: var(--warning); color: var(--secondary); }
+        .btn-ready { background: var(--success); color: white; }
+        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+
+        .empty-orders { grid-column: 1 / -1; text-align: center; padding: 5rem 2rem; color: var(--text-muted); }
+        .empty-icon { font-size: 5rem; margin-bottom: 1.5rem; opacity: 0.3; }
+
+        .sound-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted);
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            z-index: 1000;
+        }
+        .sound-toggle:hover { border-color: var(--primary); color: var(--primary); }
+
+        @media (max-width: 768px) {
+            .cocina-header { grid-template-columns: 1fr; text-align: center; }
+            .cocina-stats { justify-content: center; }
+            .orders-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="brand">
+            <div class="brand-icon">🍽️</div>
+            <div class="brand-text">
+                <h1>QR Menu Pro</h1>
+                <span>Sistema de Pedidos</span>
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('cliente')">📱 Cliente</button>
+        <button class="nav-tab" onclick="switchTab('cocina')">
+            👨‍🍳 Cocina
+            <span class="tab-badge" id="badgeCocina">0</span>
+        </button>
+    </nav>
+
+    <!-- VISTA CLIENTE -->
+    <section id="view-cliente" class="content-section active">
+        <div class="cliente-view">
+
+            <!-- PASO 1: MESA -->
+            <div id="step-mesa" class="screen">
+                <div class="hero-section">
+                    <div class="hero-icon">🔥</div>
+                    <h2 class="hero-title">El Rincón del Sabor</h2>
+                    <p class="hero-subtitle">Experiencia gastronómica digital</p>
+                </div>
+
+                <div class="mesa-section">
+                    <h3 class="section-title">Selecciona tu mesa</h3>
+                    <div class="mesa-grid" id="mesaGrid"></div>
+                    <button class="btn-primary" id="btnVerMenu" disabled onclick="goToMenu()">Ver Menú</button>
+                </div>
+            </div>
+
+            <!-- PASO 2: MENU -->
+            <div id="step-menu" class="screen hidden">
+                <div class="menu-header">
+                    <div class="mesa-indicator">🪑 Mesa <span id="mesaDisplay">-</span></div>
+                    <span class="change-mesa" onclick="resetMesa()">Cambiar</span>
+                </div>
+
+                <div class="categories" id="categories"></div>
+                <div class="products-grid" id="products"></div>
+                <div style="height: 100px;"></div>
+            </div>
+
+            <!-- PASO 3: CARRITO -->
+            <div id="step-cart" class="screen hidden">
+                <div class="cart-view">
+                    <div class="cart-header">
+                        <button class="back-btn" onclick="goBackToMenu()">←</button>
+                        <h2 class="cart-title">Tu Pedido</h2>
+                    </div>
+
+                    <div class="cart-items" id="cartItems"></div>
+
+                    <div class="cart-summary">
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Propina (10%)</span>
+                            <span id="tip">$0.00</span>
+                        </div>
+                        <div class="summary-total">
+                            <span>Total</span>
+                            <span id="total">$0.00</span>
+                        </div>
+                    </div>
+
+                    <textarea class="notes-input" rows="3" placeholder="Notas especiales..." id="orderNotes"></textarea>
+                    <button class="btn-primary" onclick="goToPayment()">Proceder al Pago →</button>
+                </div>
+            </div>
+
+            <!-- PASO 4: PAGO -->
+            <div id="step-payment" class="screen hidden">
+                <div class="cart-view">
+                    <div class="cart-header">
+                        <button class="back-btn" onclick="goBackToCart()">←</button>
+                        <h2 class="cart-title">Método de Pago</h2>
+                    </div>
+
+                    <div style="text-align: center; margin: 2rem 0;">
+                        <p style="color: var(--text-muted); margin-bottom: 0.5rem;">Total a pagar</p>
+                        <p style="font-size: 2.5rem; font-weight: 700; color: var(--primary);" id="paymentTotal">$0.00</p>
+                    </div>
+
+                    <div class="payment-options">
+                        <div class="payment-card" onclick="selectPayment('card', this)">
+                            <div class="payment-icon">💳</div>
+                            <div class="payment-info">
+                                <h4>Tarjeta de Crédito</h4>
+                                <p>Pago seguro inmediato</p>
+                            </div>
+                        </div>
+                        <div class="payment-card" onclick="selectPayment('cash', this)">
+                            <div class="payment-icon">💵</div>
+                            <div class="payment-info">
+                                <h4>Efectivo</h4>
+                                <p>Pagar al mesero</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" id="btnConfirm" onclick="confirmOrder()" disabled>Confirmar Pedido</button>
+                </div>
+            </div>
+
+            <!-- PASO 5: EXITO -->
+            <div id="step-success" class="screen hidden">
+                <div class="success-view">
+                    <div class="success-circle">✓</div>
+                    <h2 class="hero-title" style="margin-bottom: 0.5rem;">¡Pedido Confirmado!</h2>
+                    <p style="color: var(--text-muted);">Enviado directo a cocina</p>
+
+                    <div class="order-number">
+                        <span>Número de Pedido</span>
+                        <strong id="orderNum">#001</strong>
+                    </div>
+
+                    <p style="color: var(--text-muted); margin-bottom: 0.3rem;">Mesa <strong style="color: var(--primary);" id="successMesa">-</strong></p>
+                    <p style="color: var(--text-muted);">Tiempo estimado: <strong style="color: var(--success);">15-20 min</strong></p>
+
+                    <button class="btn-primary" onclick="newOrder()" style="margin-top: 3rem;">Nuevo Pedido</button>
+                </div>
+            </div>
+
+            <!-- CARRITO FLOTANTE -->
+            <div id="floatingCart" class="floating-cart hidden" onclick="goToCart()">
+                <button class="cart-button">
+                    <div class="cart-info">
+                        <span>🛒 Ver Pedido</span>
+                        <span class="cart-count" id="cartCount">0 items</span>
+                    </div>
+                    <span id="cartTotal">$0.00</span>
+                </button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- VISTA COCINA -->
+    <section id="view-cocina" class="content-section">
+        <div class="cocina-view">
+            <div class="cocina-header">
+                <div>
+                    <h2 class="cocina-title">Panel de Cocina</h2>
+                    <p class="cocina-subtitle">Gestión de pedidos en tiempo real</p>
+                </div>
+                <div class="cocina-stats">
+                    <div class="stat-box">
+                        <span class="stat-value" id="statTime">00:00</span>
+                        <span class="stat-label">Hora</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value" id="statOrders">0</span>
+                        <span class="stat-label">Activos</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value" id="statSales">$0</span>
+                        <span class="stat-label">Ventas</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="orders-grid" id="ordersContainer">
+                <div class="empty-orders">
+                    <div class="empty-icon">📋</div>
+                    <h3>Sin pedidos activos</h3>
+                    <p>Los pedidos aparecerán aquí automáticamente</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <button class="sound-toggle" onclick="toggleSound()" id="soundBtn">🔊 Sonido activado</button>
+
+    <script>
+        // ========== DATOS ==========
+        const menuData = {
+            tapas: [
+                { id: 1, name: "Patatas Bravas", desc: "Salsa brava picante y alioli", price: 6.50 },
+                { id: 2, name: "Croquetas de Jamón", desc: "Bechamel cremosa, 4 unidades", price: 7.00 },
+                { id: 3, name: "Gambas al Ajillo", desc: "Aceite de oliva virgen, guindilla", price: 9.50 },
+                { id: 4, name: "Tortilla Española", desc: "Con cebolla caramelizada", price: 6.00 },
+                { id: 5, name: "Jamón Ibérico", desc: "Corte manual, 50g de bellota", price: 12.00 }
+            ],
+            principales: [
+                { id: 6, name: "Paella Valenciana", desc: "Arroz bomba, mariscos (2 pers.)", price: 24.00 },
+                { id: 7, name: "Pulpo a la Gallega", desc: "Pimentón de la Vera", price: 16.00 },
+                { id: 8, name: "Entrecot de Buey", desc: "500g, chimichurri casero", price: 22.00 }
+            ],
+            bebidas: [
+                { id: 9, name: "Cerveza Artesanal", desc: "IPA o Stout, 500ml", price: 5.00 },
+                { id: 10, name: "Sangría Especial", desc: "Vino tinto, frutas frescas, 1L", price: 12.00 },
+                { id: 11, name: "Rioja Reserva", desc: "Crianza 24 meses, copa", price: 6.50 },
+                { id: 12, name: "Tinto de Verano", desc: "Limón fresco, refrescante", price: 4.00 }
+            ]
+        };
+
+        const categories = [
+            { id: 'tapas', name: 'Tapas', icon: '🍤' },
+            { id: 'principales', name: 'Principales', icon: '🍖' },
+            { id: 'bebidas', name: 'Bebidas', icon: '🍺' }
+        ];
+
+        // ========== ESTADO GLOBAL ==========
+        let currentTable = null;
+        let cart = {};
+        let currentCategory = 'tapas';
+        let paymentMethod = null;
+        let orderCounter = 0;
+        let kitchenOrders = [];
+        let totalSales = 0;
+        let soundEnabled = true;
+
+        // ========== INICIALIZAR ==========
+        function init() {
+            renderTables();
+            renderCategories();
+            renderProducts();
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('statTime').textContent = 
+                now.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+        }
+
+        // ========== NAVEGACION ==========
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById('view-' + tab).classList.add('active');
+            
+            if (tab === 'cocina') {
+                document.getElementById('badgeCocina').classList.remove('show');
+            }
+        }
+
+        // ========== CLIENTE: MESA ==========
+        function renderTables() {
+            const grid = document.getElementById('mesaGrid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= 12; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'mesa-btn';
+                btn.textContent = i;
+                btn.onclick = () => selectTable(i, btn);
+                grid.appendChild(btn);
+            }
+        }
+
+        function selectTable(num, btn) {
+            currentTable = num;
+            document.querySelectorAll('.mesa-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            document.getElementById('btnVerMenu').disabled = false;
+        }
+
+        function goToMenu() {
+            document.getElementById('step-mesa').classList.add('hidden');
+            document.getElementById('step-menu').classList.remove('hidden');
+            document.getElementById('mesaDisplay').textContent = currentTable;
+        }
+
+        function resetMesa() {
+            if (confirm('¿Cambiar de mesa? Se vaciará el carrito.')) {
+                cart = {};
+                updateCart();
+                document.getElementById('step-menu').classList.add('hidden');
+                document.getElementById('step-mesa').classList.remove('hidden');
+                document.querySelectorAll('.mesa-btn').forEach(b => b.classList.remove('selected'));
+                document.getElementById('btnVerMenu').disabled = true;
+                currentTable = null;
+            }
+        }
+
+        // ========== CLIENTE: MENU ==========
+        function renderCategories() {
+            const container = document.getElementById('categories');
+            container.innerHTML = '';
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'cat-pill ' + (cat.id === currentCategory ? 'active' : '');
+                btn.textContent = `${cat.icon} ${cat.name}`;
+                btn.onclick = () => {
+                    currentCategory = cat.id;
+                    renderCategories();
+                    renderProducts();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('products');
+            container.innerHTML = '';
+            
+            menuData[currentCategory].forEach(item => {
+                const qty = cart[item.id] || 0;
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="product-info">
+                        <h3>${item.name}</h3>
+                        <p>${item.desc}</p>
+                        <div class="product-price">$${item.price.toFixed(2)}</div>
+                    </div>
+                    <div class="quantity-control">
+                        <button class="qty-btn" onclick="updateQty(${item.id}, -1)">−</button>
+                        <span class="qty-value" id="qty-${item.id}">${qty}</span>
+                        <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateQty(id, delta) {
+            const current = cart[id] || 0;
+            const updated = Math.max(0, current + delta);
+            
+            if (updated === 0) delete cart[id];
+            else cart[id] = updated;
+            
+            const display = document.getElementById(`qty-${id}`);
+            if (display) display.textContent = updated;
+            
+            updateCart();
+        }
+
+        function getItem(id) {
+            for (let cat in menuData) {
+                const item = menuData[cat].find(i => i.id === id);
+                if (item) return item;
+            }
+            return null;
+        }
+
+        function updateCart() {
+            let total = 0;
+            let count = 0;
+            
+            Object.keys(cart).forEach(id => {
+                const item = getItem(parseInt(id));
+                if (item) {
+                    total += item.price * cart[id];
+                    count += cart[id];
+                }
+            });
+            
+            const floating = document.getElementById('floatingCart');
+            if (count > 0) {
+                floating.classList.remove('hidden');
+                document.getElementById('cartCount').textContent = `${count} items`;
+                document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+            } else {
+                floating.classList.add('hidden');
+            }
+        }
+
+        // ========== CLIENTE: CARRITO ==========
+        function goToCart() {
+            document.getElementById('step-menu').classList.add('hidden');
+            document.getElementById('step-cart').classList.remove('hidden');
+            document.getElementById('floatingCart').classList.add('hidden');
+            renderCartDetails();
+        }
+
+        function goBackToMenu() {
+            document.getElementById('step-cart').classList.add('hidden');
+            document.getElementById('step-menu').classList.remove('hidden');
+            updateCart();
+        }
+
+        function renderCartDetails() {
+            const container = document.getElementById('cartItems');
+            container.innerHTML = '';
+            
+            let subtotal = 0;
+            
+            Object.keys(cart).forEach(id => {
+                const item = getItem(parseInt(id));
+                if (!item) return;
+                
+                const qty = cart[id];
+                const itemTotal = item.price * qty;
+                subtotal += itemTotal;
+                
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <div class="cart-item-info">
+                        <h4>${item.name}</h4>
+                        <span>${qty} x $${item.price.toFixed(2)}</span>
+                    </div>
+                    <div class="cart-item-price">$${itemTotal.toFixed(2)}</div>
+                `;
+                container.appendChild(div);
+            });
+            
+            const tip = subtotal * 0.10;
+            const total = subtotal + tip;
+            
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('tip').textContent = `$${tip.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+        }
+
+        // ========== CLIENTE: PAGO ==========
+        function goToPayment() {
+            const totalText = document.getElementById('total').textContent;
+            document.getElementById('paymentTotal').textContent = totalText;
+            document.getElementById('step-cart').classList.add('hidden');
+            document.getElementById('step-payment').classList.remove('hidden');
+        }
+
+        function goBackToCart() {
+            document.getElementById('step-payment').classList.add('hidden');
+            document.getElementById('step-cart').classList.remove('hidden');
+        }
+
+        function selectPayment(method, el) {
+            paymentMethod = method;
+            document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('btnConfirm').disabled = false;
+        }
+
+        // ========== CONFIRMAR ORDEN ==========
+        function confirmOrder() {
+            const btn = document.getElementById('btnConfirm');
+            btn.innerHTML = 'Procesando...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                orderCounter++;
+                
+                const items = [];
+                let subtotal = 0;
+                
+                Object.keys(cart).forEach(id => {
+                    const item = getItem(parseInt(id));
+                    if (item) {
+                        const qty = cart[id];
+                        items.push({
+                            id: parseInt(id),
+                            name: item.name,
+                            qty: qty,
+                            price: item.price,
+                            total: item.price * qty
+                        });
+                        subtotal += item.price * qty;
+                    }
+                });
+                
+                const tip = subtotal * 0.10;
+                const total = subtotal + tip;
+
+                const order = {
+                    id: Date.now(),
+                    number: orderCounter,
+                    table: currentTable,
+                    items: items,
+                    notes: document.getElementById('orderNotes').value,
+                    subtotal: subtotal,
+                    tip: tip,
+                    total: total,
+                    payment: paymentMethod,
+                    time: new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'}),
+                    timestamp: Date.now(),
+                    status: 'new'
+                };
+
+                // ENVIAR A COCINA (AHORA SI FUNCIONA)
+                console.log('Enviando pedido a cocina:', order);
+                addOrderToKitchen(order);
+                
+                // MOSTRAR CONFIRMACION
+                document.getElementById('orderNum').textContent = '#' + String(orderCounter).padStart(3, '0');
+                document.getElementById('successMesa').textContent = currentTable;
+                
+                document.getElementById('step-payment').classList.add('hidden');
+                document.getElementById('step-success').classList.remove('hidden');
+
+                btn.innerHTML = 'Confirmar Pedido';
+                
+            }, 1500);
+        }
+
+        function newOrder() {
+            cart = {};
+            paymentMethod = null;
+            document.getElementById('orderNotes').value = '';
+            document.getElementById('btnConfirm').disabled = true;
+            document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('selected'));
+            
+            document.getElementById('step-success').classList.add('hidden');
+            document.getElementById('step-mesa').classList.remove('hidden');
+            document.querySelectorAll('.mesa-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('btnVerMenu').disabled = true;
+            currentTable = null;
+            renderTables();
+            updateCart();
+        }
+
+        // ========== COCINA: FUNCIONES CORREGIDAS ==========
+        function addOrderToKitchen(order) {
+            // Agregar al array global
+            kitchenOrders.push(order);
+            
+            // Sumar a ventas totales
+            totalSales += order.total;
+            
+            // Renderizar inmediatamente
+            renderKitchenOrders();
+            updateKitchenStats();
+            
+            // Notificacion visual si no estamos en cocina
+            const cocinaView = document.getElementById('view-cocina');
+            if (!cocinaView.classList.contains('active')) {
+                const badge = document.getElementById('badgeCocina');
+                badge.textContent = kitchenOrders.length;
+                badge.classList.add('show');
+            }
+            
+            // Sonido
+            if (soundEnabled) playSound();
+            
+            console.log('Pedido agregado. Total ventas:', totalSales);
+        }
+
+        function renderKitchenOrders() {
+            const container = document.getElementById('ordersContainer');
+            
+            if (kitchenOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-orders">
+                        <div class="empty-icon">📋</div>
+                        <h3>Sin pedidos activos</h3>
+                        <p>Los pedidos aparecerán aquí automáticamente</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            // Mostrar pedidos en orden inverso (más nuevo primero)
+            [...kitchenOrders].reverse().forEach(order => {
+                const card = document.createElement('div');
+                card.className = 'order-card ' + (order.status === 'new' ? 'new' : '');
+                card.id = `kitchen-order-${order.id}`;
+                
+                let itemsHtml = '';
+                order.items.forEach(item => {
+                    itemsHtml += `
+                        <div class="order-item">
+                            <div class="item-name">
+                                <span class="item-qty">${item.qty}</span>
+                                ${item.name}
+                            </div>
+                            <span style="color: var(--text-muted);">$${item.total.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+                
+                card.innerHTML = `
+                    <div class="order-header">
+                        <div class="table-number">
+                            <span>Mesa</span>
+                            ${order.table}
+                        </div>
+                        <div class="order-time">
+                            <div class="time-display">${order.time}</div>
+                            <div class="time-ago">Ahora</div>
+                        </div>
+                    </div>
+                    <div class="order-body">
+                        <div class="order-items">${itemsHtml}</div>
+                        ${order.notes ? `<div class="order-notes">📝 ${order.notes}</div>` : ''}
+                    </div>
+                    <div class="order-footer">
+                        <div>
+                            <div class="total-label">TOTAL PAGADO</div>
+                            <div class="payment-badge">
+                                ✓ ${order.payment === 'card' ? 'Tarjeta' : 'Efectivo'}
+                            </div>
+                        </div>
+                        <div class="order-total">
+                            <div class="total-amount">$${order.total.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <div class="order-actions">
+                        <button class="btn-action btn-cooking" onclick="startCooking(${order.id})">
+                            ⚡ Preparar
+                        </button>
+                        <button class="btn-action btn-ready" onclick="completeOrder(${order.id})">
+                            ✓ Listo
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        function updateKitchenStats() {
+            document.getElementById('statOrders').textContent = kitchenOrders.length;
+            document.getElementById('statSales').textContent = '$' + totalSales.toFixed(0);
+        }
+
+        function startCooking(id) {
+            const order = kitchenOrders.find(o => o.id === id);
+            if (order) {
+                order.status = 'cooking';
+                const card = document.getElementById(`kitchen-order-${id}`);
+                if (card) card.classList.remove('new');
+            }
+        }
+
+        function completeOrder(id) {
+            const index = kitchenOrders.findIndex(o => o.id === id);
+            if (index > -1) {
+                const order = kitchenOrders[index];
+                
+                // Restar de ventas (opcional, o mantener para historial)
+                // totalSales -= order.total;
+                
+                const card = document.getElementById(`kitchen-order-${id}`);
+                if (card) {
+                    card.style.transform = 'translateX(100%)';
+                    card.style.opacity = '0';
+                }
+                
+                setTimeout(() => {
+                    kitchenOrders.splice(index, 1);
+                    renderKitchenOrders();
+                    updateKitchenStats();
+                    
+                    const badge = document.getElementById('badgeCocina');
+                    if (kitchenOrders.length === 0) {
+                        badge.classList.remove('show');
+                    } else {
+                        badge.textContent = kitchenOrders.length;
+                    }
+                }, 300);
+            }
+        }
+
+        // ========== SONIDO ==========
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundBtn').textContent = soundEnabled ? 
+                '🔊 Sonido activado' : '🔇 Sonido apagado';
+        }
+
+        function playSound() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                const ctx = new AudioContext();
+                
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                
+                osc1.frequency.setValueAtTime(880, ctx.currentTime);
+                gain1.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                
+                osc1.start(ctx.currentTime);
+                osc1.stop(ctx.currentTime + 0.1);
+                
+                setTimeout(() => {
+                    const osc2 = ctx.createOscillator();
+                    const gain2 = ctx.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(ctx.destination);
+                    
+                    osc2.frequency.setValueAtTime(1109, ctx.currentTime);
+                    gain2.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                    
+                    osc2.start(ctx.currentTime);
+                    osc2.stop(ctx.currentTime + 0.2);
+                }, 100);
+                
+            } catch (e) {
+                console.log('Audio no disponible');
+            }
+        }
+
+        // Iniciar
+        init();
+    </script>
+</body>
+</html>
